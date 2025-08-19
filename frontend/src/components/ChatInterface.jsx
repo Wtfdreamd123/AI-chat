@@ -6,8 +6,9 @@ import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { Send, Bot, User, Code, FileText, CheckCircle } from 'lucide-react';
-// Mock data removed - now using real API
+import { Send, Bot, User, Code, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([
@@ -16,11 +17,13 @@ const ChatInterface = () => {
       type: 'ai',
       content: 'Привет! Я ваш AI помощник для работы с текстом и кодом. Я могу генерировать код, анализировать его и помочь с программированием. Что вас интересует?',
       timestamp: new Date(Date.now() - 60000),
-      category: 'greeting'
+      category: 'text'
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -33,7 +36,7 @@ const ChatInterface = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isTyping) return;
 
     const userMessage = {
       id: Date.now(),
@@ -44,21 +47,61 @@ const ChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageContent = inputValue;
     setInputValue('');
     setIsTyping(true);
+    setError(null);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const aiResponse = {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/chat/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageContent,
+          category: userMessage.category,
+          session_id: sessionId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const aiResponseData = await response.json();
+      
+      // Update session ID if this is the first message
+      if (!sessionId) {
+        setSessionId(aiResponseData.session_id);
+      }
+
+      const aiMessage = {
+        id: aiResponseData.id,
+        type: 'ai',
+        content: aiResponseData.response,
+        timestamp: new Date(aiResponseData.timestamp),
+        category: aiResponseData.category
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setError('Ошибка подключения к ИИ. Попробуйте еще раз.');
+      
+      // Add error message to chat
+      const errorMessage = {
         id: Date.now() + 1,
         type: 'ai',
-        content: getMockResponse(userMessage.content, userMessage.category),
+        content: 'Извините, произошла ошибка при обращении к ИИ. Проверьте подключение к интернету и попробуйте еще раз.',
         timestamp: new Date(),
-        category: userMessage.category
+        category: 'error'
       };
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const detectCategory = (text) => {
