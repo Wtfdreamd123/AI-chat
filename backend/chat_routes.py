@@ -7,7 +7,7 @@ from typing import List
 
 from models import ChatRequest, ChatResponse, ChatMessage, ChatHistoryResponse, ChatSession
 from ai_service import AIService
-from server import get_database
+from database import get_database
 
 logger = logging.getLogger(__name__)
 
