@@ -1,31 +1,21 @@
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
 
-# Import routes
-from chat_routes import chat_router
+# Import database
+from database import db, client
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
-
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
 app = FastAPI(title="AI Coder Backend", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
-
-# Database dependency
-async def get_database():
-    return db
 
 # Health check endpoint
 @api_router.get("/")
@@ -40,6 +30,9 @@ async def health_check():
         return {"status": "healthy", "database": "connected", "ai_service": "ready"}
     except Exception as e:
         return {"status": "unhealthy", "error": str(e)}
+
+# Import chat router after defining api_router
+from chat_routes import chat_router
 
 # Include chat router
 api_router.include_router(chat_router)
