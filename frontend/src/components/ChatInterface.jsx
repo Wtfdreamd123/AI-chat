@@ -231,6 +231,16 @@ const ChatInterface = () => {
 
         <Separator />
 
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-2 text-red-700">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Input */}
         <CardContent className="p-4">
           <div className="flex gap-3 items-end">
