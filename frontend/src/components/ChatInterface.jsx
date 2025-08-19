@@ -182,7 +182,11 @@ const ChatInterface = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <Badge variant="secondary" className={`text-xs ${getCategoryColor(message.category)}`}>
                         {getCategoryIcon(message.category)}
-                        <span className="ml-1 capitalize">{message.category === 'code' ? 'Код' : message.category === 'analysis' ? 'Анализ' : 'Текст'}</span>
+                        <span className="ml-1 capitalize">
+                          {message.category === 'code' ? 'Код' : 
+                           message.category === 'analysis' ? 'Анализ' : 
+                           message.category === 'error' ? 'Ошибка' : 'Текст'}
+                        </span>
                       </Badge>
                       <span className="text-xs text-gray-500">
                         {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
