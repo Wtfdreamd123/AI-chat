@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Send, Bot, User, Code, FileText, CheckCircle } from 'lucide-react';
-import { mockResponses } from '../data/mock';
+// Mock data removed - now using real API
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([
