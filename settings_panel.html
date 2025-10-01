@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Настройки - Калькулятор</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+        /* Theme variables */
+        :root {
+            --calc-bg: #ffffff;
+            --calc-surface: #f8fafc;
+            --calc-border: #e2e8f0;
+            --calc-text: #0f172a;
+            --calc-text-secondary: #475569;
+            --calc-button-bg: #ffffff;
+            --calc-button-hover: #f1f5f9;
+            --calc-button-active: #e2e8f0;
+            --calc-display-bg: #f8fafc;
+            --calc-operator-bg: #2563eb;
+            --calc-operator-hover: #1d4ed8;
+            --calc-equals-bg: #f59e0b;
+            --calc-equals-hover: #d97706;
+            --calc-clear-bg: #ef4444;
+            --calc-clear-hover: #dc2626;
+            --calc-success: #10b981;
+            --calc-success-hover: #059669;
+        }
+
+        [data-theme="dark"] {
+            --calc-bg: #0f172a;
+            --calc-surface: #1e293b;
+            --calc-border: #334155;
+            --calc-text: #f8fafc;
+            --calc-text-secondary: #cbd5e1;
+            --calc-button-bg: #1e293b;
+            --calc-button-hover: #334155;
+            --calc-button-active: #475569;
+            --calc-display-bg: #0f172a;
+            --calc-operator-bg: #3b82f6;
+            --calc-operator-hover: #2563eb;
+            --calc-equals-bg: #fbbf24;
+            --calc-equals-hover: #f59e0b;
+            --calc-clear-bg: #f87171;
+            --calc-clear-hover: #ef4444;
+            --calc-success: #34d399;
+            --calc-success-hover: #10b981;
+        }
+
+        /* Background animations */
+        .geometric-bg {
+            background: linear-gradient(135deg, var(--calc-bg) 0%, var(--calc-surface) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .geometric-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            animation: geometricFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes geometricFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        /* Settings panel entrance animation */
+        .settings-entrance {
+            animation: settingsSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+
+        @keyframes settingsSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Section staggered entrance */
+        .section-stagger {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .section-stagger-1 { animation: sectionEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards; }
+        .section-stagger-2 { animation: sectionEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards; }
+        .section-stagger-3 { animation: sectionEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards; }
+        .section-stagger-4 { animation: sectionEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s forwards; }
+
+        @keyframes sectionEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Settings controls */
+        .settings-control {
+            background: var(--calc-button-bg);
+            color: var(--calc-text);
+            border: 2px solid var(--calc-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .settings-control:hover {
+            background: var(--calc-button-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-control:active {
+            transform: translateY(0) scale(0.98);
+            background: var(--calc-button-active);
+        }
+
+        /* Toggle switches */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--calc-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .toggle-switch.active {
+            background: var(--calc-operator-bg);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        /* Range sliders */
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: var(--calc-border);
+            border-radius: 3px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--calc-operator-bg);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.1);
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--calc-operator-bg);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        /* Select dropdowns */
+        .settings-select {
+            background: var(--calc-button-bg);
+            color: var(--calc-text);
+            border: 2px solid var(--calc-border);
+            transition: all 0.2s ease;
+        }
+
+        .settings-select:focus {
+            border-color: var(--calc-operator-bg);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Action buttons */
+        .action-button {
+            background: var(--calc-operator-bg);
+            color: white;
+            border: 2px solid var(--calc-operator-bg);
+            transition: all 0.2s ease;
+        }
+
+        .action-button:hover {
+            background: var(--calc-operator-hover);
+            border-color: var(--calc-operator-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .success-button {
+            background: var(--calc-success) !important;
+            border-color: var(--calc-success) !important;
+        }
+
+        .success-button:hover {
+            background: var(--calc-success-hover) !important;
+            border-color: var(--calc-success-hover) !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        /* Navigation styles */
+        .nav-button {
+            background: var(--calc-button-bg);
+            color: var(--calc-text-secondary);
+            border: 1px solid var(--calc-border);
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: var(--calc-button-hover);
+            color: var(--calc-text);
+            transform: translateY(-1px);
+        }
+
+        .nav-button.active {
+            background: var(--calc-operator-bg);
+            color: white;
+            border-color: var(--calc-operator-bg);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--calc-button-bg);
+            border: 2px solid var(--calc-border);
+            color: var(--calc-text);
+        }
+
+        .theme-toggle:hover {
+            background: var(--calc-button-hover);
+            transform: scale(1.05);
+        }
+
+        /* Settings sections */
+        .settings-section {
+            background: var(--calc-button-bg);
+            border: 2px solid var(--calc-border);
+            color: var(--calc-text);
+        }
+
+        /* Theme transition */
+        * {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* Notification toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--calc-success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fadvancedc8392back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="h-full geometric-bg font-inter" data-theme="light">
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-semibold text-slate-900 dark:text-white">Калькулятор</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Калькулятор
+                    </a>
+                    <a href="settings_panel.html" class="nav-button active px-4 py-2 rounded-lg text-sm font-medium">
+                        Настройки
+                    </a>
+                    <a href="about_modal.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        О программе
+                    </a>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="theme-toggle p-2 rounded-lg transition-all duration-200" aria-label="Переключить тему">
+                    <svg id="sunIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <svg id="moonIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden nav-button p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-700 py-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Калькулятор</a>
+                    <a href="settings_panel.html" class="nav-button active px-4 py-2 rounded-lg text-sm font-medium">Настройки</a>
+                    <a href="about_modal.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">О программе</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Settings Panel -->
+    <main class="min-h-screen px-4 pt-20 pb-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Settings Header -->
+            <div class="settings-entrance text-center mb-8">
+                <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Настройки калькулятора</h1>
+                <p class="text-slate-600 dark:text-slate-400">Настройте внешний вид и поведение калькулятора под свои предпочтения</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Theme Settings -->
+                <section class="section-stagger section-stagger-1 settings-section rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Тема оформления</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Theme Selection -->
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Режим темы</label>
+                            <select id="themeSelect" class="settings-select px-3 py-2 rounded-lg text-sm">
+                                <option value="light">Светлая тема</option>
+                                <option value="dark">Тёмная тема</option>
+                                <option value="auto">Автоматически</option>
+                            </select>
+                        </div>
+
+                        <!-- Animation Speed -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Скорость анимации</label>
+                                <span id="animationSpeedValue" class="text-sm text-slate-500 dark:text-slate-400">Обычная</span>
+                            </div>
+                            <input type="range" id="animationSpeed" class="range-slider" min="1" max="3" value="2" step="1" />
+                            <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                                <span>Медленно</span>
+                                <span>Обычно</span>
+                                <span>Быстро</span>
+                            </div>
+                        </div>
+
+                        <!-- Background Effects -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Фоновые эффекты</label>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Геометрические анимации на фоне</p>
+                            </div>
+                            <div class="toggle-switch active" id="backgroundEffects"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Calculator Settings -->
+                <section class="section-stagger section-stagger-2 settings-section rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Настройки калькулятора</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Decimal Precision -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Точность десятичных</label>
+                                <span id="precisionValue" class="text-sm text-slate-500 dark:text-slate-400">4 знака</span>
+                            </div>
+                            <input type="range" id="decimalPrecision" class="range-slider" min="2" max="10" value="4" step="1" />
+                            <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                                <span>2</span>
+                                <span>6</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+
+                        <!-- Calculator Size -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Размер калькулятора</label>
+                                <span id="sizeValue" class="text-sm text-slate-500 dark:text-slate-400">100%</span>
+                            </div>
+                            <input type="range" id="calculatorSize" class="range-slider" min="80" max="120" value="100" step="10" />
+                            <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                                <span>80%</span>
+                                <span>100%</span>
+                                <span>120%</span>
+                            </div>
+                        </div>
+
+                        <!-- Sound Effects -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Звуковые эффекты</label>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Звуки при нажатии кнопок</p>
+                            </div>
+                            <div class="toggle-switch" id="soundEffects"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Keyboard Shortcuts -->
+                <section class="section-stagger section-stagger-3 settings-section rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Горячие клавиши</h2>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Очистить всё</span>
+                            <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded text-xs font-mono">Esc</kbd>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Удалить символ</span>
+                            <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded text-xs font-mono">Backspace</kbd>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Вычислить</span>
+                            <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded text-xs font-mono">Enter</kbd>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Десятичная точка</span>
+                            <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded text-xs font-mono">. или ,</kbd>
+                        </div>
+
+                        <!-- Enable Keyboard Shortcuts -->
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-600">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Включить горячие клавиши</label>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Управление с клавиатуры</p>
+                            </div>
+                            <div class="toggle-switch active" id="keyboardShortcuts"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Advanced Settings -->
+                <section class="section-stagger section-stagger-4 settings-section rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Дополнительно</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Auto-save Settings -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Автосохранение настроек</label>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Сохранять изменения автоматически</p>
+                            </div>
+                            <div class="toggle-switch active" id="autoSave"></div>
+                        </div>
+
+                        <!-- Export/Import Settings -->
+                        <div class="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-600">
+                            <button id="exportSettings" class="w-full action-button py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span>Экспорт настроек</span>
+                            </button>
+                            <button id="importSettings" class="w-full settings-control py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                                </svg>
+                                <span>Импорт настроек</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="saveSettings" class="action-button success-button px-8 py-3 rounded-lg font-medium flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Сохранить настройки</span>
+                </button>
+                <button id="resetSettings" class="settings-control px-8 py-3 rounded-lg font-medium flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>Сбросить к умолчанию</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;" />
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastMessage">Настройки сохранены!</span>
+    </div>
+
+    <script>
+        // Settings state
+        let settings = {
+            theme: 'light',
+            animationSpeed: 2,
+            backgroundEffects: true,
+            decimalPrecision: 4,
+            calculatorSize: 100,
+            soundEffects: false,
+            keyboardShortcuts: true,
+            autoSave: true
+        };
+
+        // DOM elements
+        const body = document.body;
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        // Settings controls
+        const themeSelect = document.getElementById('themeSelect');
+        const animationSpeed = document.getElementById('animationSpeed');
+        const animationSpeedValue = document.getElementById('animationSpeedValue');
+        const backgroundEffects = document.getElementById('backgroundEffects');
+        const decimalPrecision = document.getElementById('decimalPrecision');
+        const precisionValue = document.getElementById('precisionValue');
+        const calculatorSize = document.getElementById('calculatorSize');
+        const sizeValue = document.getElementById('sizeValue');
+        const soundEffects = document.getElementById('soundEffects');
+        const keyboardShortcuts = document.getElementById('keyboardShortcuts');
+        const autoSave = document.getElementById('autoSave');
+
+        // Action buttons
+        const saveSettingsBtn = document.getElementById('saveSettings');
+        const resetSettingsBtn = document.getElementById('resetSettings');
+        const exportSettingsBtn = document.getElementById('exportSettings');
+        const importSettingsBtn = document.getElementById('importSettings');
+        const fileInput = document.getElementById('fileInput');
+
+        // Load saved settings
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('calculatorSettings');
+            if (savedSettings) {
+                settings = { ...settings, ...JSON.parse(savedSettings) };
+            }
+            
+            const savedTheme = localStorage.getItem('calculatorTheme') || settings.theme;
+            settings.theme = savedTheme;
+            
+            applySettings();
+        }
+
+        // Apply settings to UI
+        function applySettings() {
+            // Theme
+            body.setAttribute('data-theme', settings.theme);
+            themeSelect.value = settings.theme;
+            updateThemeIcons(settings.theme);
+
+            // Animation speed
+            animationSpeed.value = settings.animationSpeed;
+            updateAnimationSpeedLabel();
+
+            // Background effects
+            backgroundEffects.classList.toggle('active', settings.backgroundEffects);
+
+            // Decimal precision
+            decimalPrecision.value = settings.decimalPrecision;
+            updatePrecisionLabel();
+
+            // Calculator size
+            calculatorSize.value = settings.calculatorSize;
+            updateSizeLabel();
+
+            // Toggle switches
+            soundEffects.classList.toggle('active', settings.soundEffects);
+            keyboardShortcuts.classList.toggle('active', settings.keyboardShortcuts);
+            autoSave.classList.toggle('active', settings.autoSave);
+        }
+
+        // Update labels
+        function updateAnimationSpeedLabel() {
+            const speeds = ['', 'Медленно', 'Обычно', 'Быстро'];
+            animationSpeedValue.textContent = speeds[settings.animationSpeed] || 'Обычно';
+        }
+
+        function updatePrecisionLabel() {
+            precisionValue.textContent = `${settings.decimalPrecision} знака`;
+        }
+
+        function updateSizeLabel() {
+            sizeValue.textContent = `${settings.calculatorSize}%`;
+        }
+
+        // Theme management
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        // Save settings
+        function saveSettings() {
+            localStorage.setItem('calculatorSettings', JSON.stringify(settings));
+            localStorage.setItem('calculatorTheme', settings.theme);
+            showToast('Настройки сохранены!');
+        }
+
+        // Reset settings
+        function resetSettings() {
+            settings = {
+                theme: 'light',
+                animationSpeed: 2,
+                backgroundEffects: true,
+                decimalPrecision: 4,
+                calculatorSize: 100,
+                soundEffects: false,
+                keyboardShortcuts: true,
+                autoSave: true
+            };
+            
+            localStorage.removeItem('calculatorSettings');
+            localStorage.removeItem('calculatorTheme');
+            applySettings();
+            showToast('Настройки сброшены к умолчанию');
+        }
+
+        // Export settings
+        function exportSettings() {
+            const dataStr = JSON.stringify(settings, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'calculator-settings.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast('Настройки экспортированы');
+        }
+
+        // Import settings
+        function importSettings() {
+            fileInput.click();
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Event listeners
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            settings.theme = newTheme;
+            body.setAttribute('data-theme', newTheme);
+            themeSelect.value = newTheme;
+            updateThemeIcons(newTheme);
+            if (settings.autoSave) saveSettings();
+        });
+
+        themeSelect.addEventListener('change', (e) => {
+            settings.theme = e.target.value;
+            body.setAttribute('data-theme', settings.theme);
+            updateThemeIcons(settings.theme);
+            if (settings.autoSave) saveSettings();
+        });
+
+        animationSpeed.addEventListener('input', (e) => {
+            settings.animationSpeed = parseInt(e.target.value);
+            updateAnimationSpeedLabel();
+            if (settings.autoSave) saveSettings();
+        });
+
+        backgroundEffects.addEventListener('click', () => {
+            settings.backgroundEffects = !settings.backgroundEffects;
+            backgroundEffects.classList.toggle('active', settings.backgroundEffects);
+            if (settings.autoSave) saveSettings();
+        });
+
+        decimalPrecision.addEventListener('input', (e) => {
+            settings.decimalPrecision = parseInt(e.target.value);
+            updatePrecisionLabel();
+            if (settings.autoSave) saveSettings();
+        });
+
+        calculatorSize.addEventListener('input', (e) => {
+            settings.calculatorSize = parseInt(e.target.value);
+            updateSizeLabel();
+            if (settings.autoSave) saveSettings();
+        });
+
+        soundEffects.addEventListener('click', () => {
+            settings.soundEffects = !settings.soundEffects;
+            soundEffects.classList.toggle('active', settings.soundEffects);
+            if (settings.autoSave) saveSettings();
+        });
+
+        keyboardShortcuts.addEventListener('click', () => {
+            settings.keyboardShortcuts = !settings.keyboardShortcuts;
+            keyboardShortcuts.classList.toggle('active', settings.keyboardShortcuts);
+            if (settings.autoSave) saveSettings();
+        });
+
+        autoSave.addEventListener('click', () => {
+            settings.autoSave = !settings.autoSave;
+            autoSave.classList.toggle('active', settings.autoSave);
+            if (settings.autoSave) saveSettings();
+        });
+
+        // Action buttons
+        saveSettingsBtn.addEventListener('click', saveSettings);
+        resetSettingsBtn.addEventListener('click', resetSettings);
+        exportSettingsBtn.addEventListener('click', exportSettings);
+        importSettingsBtn.addEventListener('click', importSettings);
+
+        // File import
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedSettings = JSON.parse(e.target.result);
+                        settings = { ...settings, ...importedSettings };
+                        applySettings();
+                        saveSettings();
+                        showToast('Настройки импортированы');
+                    } catch (error) {
+                        showToast('Ошибка при импорте настроек');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Initialize
+        loadSettings();
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

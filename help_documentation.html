@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Справка и документация - Advanced Calculator Pro</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+        /* Theme variables */
+        :root {
+            --help-bg: #ffffff;
+            --help-surface: #f8fafc;
+            --help-border: #e2e8f0;
+            --help-text: #0f172a;
+            --help-text-secondary: #475569;
+            --help-text-muted: #64748b;
+            --help-card-bg: #ffffff;
+            --help-card-hover: #f1f5f9;
+            --help-accent: #2563eb;
+            --help-accent-light: #dbeafe;
+            --help-success: #10b981;
+            --help-warning: #f59e0b;
+            --help-code-bg: #f1f5f9;
+            --help-search-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --help-bg: #0f172a;
+            --help-surface: #1e293b;
+            --help-border: #334155;
+            --help-text: #f8fafc;
+            --help-text-secondary: #cbd5e1;
+            --help-text-muted: #94a3b8;
+            --help-card-bg: #1e293b;
+            --help-card-hover: #334155;
+            --help-accent: #3b82f6;
+            --help-accent-light: #1e3a8a;
+            --help-success: #34d399;
+            --help-warning: #fbbf24;
+            --help-code-bg: #334155;
+            --help-search-bg: #1e293b;
+        }
+
+        /* Background animations */
+        .help-geometric-bg {
+            background: linear-gradient(135deg, var(--help-bg) 0%, var(--help-surface) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .help-geometric-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            animation: helpGeometricFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes helpGeometricFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-15px) rotate(1deg); }
+            66% { transform: translateY(8px) rotate(-1deg); }
+        }
+
+        /* Content entrance animations */
+        .help-entrance {
+            animation: helpSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes helpSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered card animations */
+        .help-card-stagger {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+
+        .help-stagger-1 { animation: helpCardEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards; }
+        .help-stagger-2 { animation: helpCardEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards; }
+        .help-stagger-3 { animation: helpCardEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards; }
+        .help-stagger-4 { animation: helpCardEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards; }
+        .help-stagger-5 { animation: helpCardEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s forwards; }
+        .help-stagger-6 { animation: helpCardEntrance 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.7s forwards; }
+
+        @keyframes helpCardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Interactive elements */
+        .help-card {
+            background: var(--help-card-bg);
+            border: 2px solid var(--help-border);
+            color: var(--help-text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .help-card:hover {
+            background: var(--help-card-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: var(--help-accent);
+        }
+
+        .help-search {
+            background: var(--help-search-bg);
+            border: 2px solid var(--help-border);
+            color: var(--help-text);
+            transition: all 0.2s ease;
+        }
+
+        .help-search:focus {
+            border-color: var(--help-accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .help-kbd {
+            background: var(--help-code-bg);
+            color: var(--help-text);
+            border: 1px solid var(--help-border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .help-tooltip {
+            background: var(--help-text);
+            color: var(--help-bg);
+            opacity: 0;
+            transform: translateY(5px);
+            transition: all 0.2s ease;
+        }
+
+        .help-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation styles */
+        .nav-button {
+            background: var(--help-card-bg);
+            color: var(--help-text-secondary);
+            border: 1px solid var(--help-border);
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: var(--help-card-hover);
+            color: var(--help-text);
+            transform: translateY(-1px);
+        }
+
+        .nav-button.active {
+            background: var(--help-accent);
+            color: white;
+            border-color: var(--help-accent);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--help-card-bg);
+            border: 2px solid var(--help-border);
+            color: var(--help-text);
+        }
+
+        .theme-toggle:hover {
+            background: var(--help-card-hover);
+            transform: scale(1.05);
+        }
+
+        /* Accordion animations */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-content.expanded {
+            max-height: 1000px;
+        }
+
+        /* Search highlight */
+        .search-highlight {
+            background: var(--help-warning);
+            color: var(--help-text);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* Theme transition */
+        * {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+    </style>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fadvancedc8392back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="h-full help-geometric-bg font-inter" data-theme="light">
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-semibold text-slate-900 dark:text-white">Calculator Pro</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Калькулятор
+                    </a>
+                    <a href="settings_panel.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Настройки
+                    </a>
+                    <a href="help_documentation.html" class="nav-button active px-4 py-2 rounded-lg text-sm font-medium">
+                        Справка
+                    </a>
+                    <a href="about_modal.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        О программе
+                    </a>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="theme-toggle p-2 rounded-lg transition-all duration-200" aria-label="Переключить тему">
+                    <svg id="sunIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <svg id="moonIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden nav-button p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-700 py-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Калькулятор</a>
+                    <a href="settings_panel.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Настройки</a>
+                    <a href="help_documentation.html" class="nav-button active px-4 py-2 rounded-lg text-sm font-medium">Справка</a>
+                    <a href="about_modal.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">О программе</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="min-h-screen pt-20 pb-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header Section -->
+            <div class="help-entrance text-center mb-12">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-bold text-slate-900 dark:text-white mb-4">Справка и документация</h1>
+                <p class="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+                    Полное руководство по использованию Advanced Calculator Pro с интерактивными примерами и подробными объяснениями всех функций
+                </p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="help-entrance mb-12">
+                <div class="max-w-2xl mx-auto relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <input type="text" id="searchInput" class="help-search w-full pl-12 pr-4 py-4 rounded-xl text-lg font-medium" placeholder="Поиск по документации..." autocomplete="off" />
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">Ctrl+K</kbd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Navigation -->
+            <div class="help-entrance mb-12">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="nav-quick-btn px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors" data-section="basics">
+                        Основы
+                    </button>
+                    <button class="nav-quick-btn px-6 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors" data-section="shortcuts">
+                        Горячие клавиши
+                    </button>
+                    <button class="nav-quick-btn px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors" data-section="advanced">
+                        Продвинутые функции
+                    </button>
+                    <button class="nav-quick-btn px-6 py-3 bg-purple-500 text-white rounded-xl font-medium hover:bg-purple-600 transition-colors" data-section="troubleshooting">
+                        Решение проблем
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Getting Started Section -->
+                    <section id="basics" class="help-card help-card-stagger help-stagger-1 rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Основы работы</h2>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="help-accordion">
+                                <button class="accordion-trigger w-full text-left p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center justify-between">
+                                    <span class="font-semibold text-slate-900 dark:text-white">Базовые операции</span>
+                                    <svg class="w-5 h-5 text-slate-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 text-slate-600 dark:text-slate-300">
+                                        <ul class="space-y-3">
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>Сложение (+):</strong> Нажмите числа, затем кнопку "+" и второе число, завершите нажатием "="
+                                                </div>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>Вычитание (−):</strong> Аналогично сложению, используйте кнопку "−"
+                                                </div>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>Умножение (×):</strong> Используйте кнопку "×" для перемножения чисел
+                                                </div>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>Деление (÷):</strong> Используйте кнопку "÷" для деления чисел
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="help-accordion">
+                                <button class="accordion-trigger w-full text-left p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center justify-between">
+                                    <span class="font-semibold text-slate-900 dark:text-white">Управление дисплеем</span>
+                                    <svg class="w-5 h-5 text-slate-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 text-slate-600 dark:text-slate-300">
+                                        <ul class="space-y-3">
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>C (Clear):</strong> Полная очистка калькулятора и сброс всех операций
+                                                </div>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>CE (Clear Entry):</strong> Очистка только текущего введенного числа
+                                                </div>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                <div>
+                                                    <strong>⌫ (Backspace):</strong> Удаление последней введенной цифры
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Keyboard Shortcuts Section -->
+                    <section id="shortcuts" class="help-card help-card-stagger help-stagger-2 rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V4a1 1 0 011-1h3a1 1 0 011 1v1z"/>
+                                </svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Горячие клавиши</h2>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Цифры и операции</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Цифры 0-9</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">0-9</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Сложение</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">+</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Вычитание</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">-</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Умножение</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">*</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Деление</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">/</kbd>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Управление</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Равно</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">Enter</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Очистить</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">Esc</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Удалить символ</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">Backspace</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Десятичная точка</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">. или ,</kbd>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                                        <span class="text-slate-600 dark:text-slate-300">Поиск в справке</span>
+                                        <kbd class="help-kbd px-2 py-1 text-xs font-semibold rounded">Ctrl+K</kbd>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Advanced Features Section -->
+                    <section id="advanced" class="help-card help-card-stagger help-stagger-3 rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Продвинутые функции</h2>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                                <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">История вычислений</h3>
+                                <p class="text-blue-800 dark:text-blue-200 mb-4">
+                                    Калькулятор автоматически сохраняет историю всех ваших вычислений. Нажмите кнопку "История" для просмотра последних 50 операций.
+                                </p>
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-sm text-blue-700 dark:text-blue-300">Данные сохраняются локально в браузере</span>
+                                </div>
+                            </div>
+
+                            <div class="p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
+                                <h3 class="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-3">Темы оформления</h3>
+                                <p class="text-amber-800 dark:text-amber-200 mb-4">
+                                    Переключайтесь между светлой и темной темами для комфортной работы в любое время суток. Настройки темы сохраняются автоматически.
+                                </p>
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                                    </svg>
+                                    <span class="text-sm text-amber-700 dark:text-amber-300">Плавные анимации переходов</span>
+                                </div>
+                            </div>
+
+                            <div class="p-6 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                                <h3 class="text-lg font-semibold text-emerald-900 dark:text-emerald-100 mb-3">Форматирование чисел</h3>
+                                <p class="text-emerald-800 dark:text-emerald-200 mb-4">
+                                    Большие числа автоматически форматируются с разделителями тысяч для удобства чтения. Десятичные числа отображаются с запятой согласно российским стандартам.
+                                </p>
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="text-sm text-emerald-700 dark:text-emerald-300">Пример: 1 000 000,50</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Troubleshooting Section -->
+                    <section id="troubleshooting" class="help-card help-card-stagger help-stagger-4 rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Решение проблем</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="border border-slate-200 dark:border-slate-600 rounded-lg">
+                                <button class="accordion-trigger w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-between">
+                                    <span class="font-semibold text-slate-900 dark:text-white">Калькулятор не реагирует на нажатия</span>
+                                    <svg class="w-5 h-5 text-slate-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border-t border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
+                                        <ul class="space-y-2">
+                                            <li>• Обновите страницу (F5 или Ctrl+R)</li>
+                                            <li>• Проверьте, включен ли JavaScript в браузере</li>
+                                            <li>• Очистите кэш браузера</li>
+                                            <li>• Попробуйте использовать клавиатуру вместо мыши</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border border-slate-200 dark:border-slate-600 rounded-lg">
+                                <button class="accordion-trigger w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-between">
+                                    <span class="font-semibold text-slate-900 dark:text-white">Неправильные результаты вычислений</span>
+                                    <svg class="w-5 h-5 text-slate-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border-t border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
+                                        <ul class="space-y-2">
+                                            <li>• Убедитесь, что вы правильно вводите числа</li>
+                                            <li>• Проверьте порядок операций</li>
+                                            <li>• Используйте кнопку "C" для полной очистки перед новым вычислением</li>
+                                            <li>• При делении на ноль результат будет равен 0</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border border-slate-200 dark:border-slate-600 rounded-lg">
+                                <button class="accordion-trigger w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-between">
+                                    <span class="font-semibold text-slate-900 dark:text-white">Проблемы с темой оформления</span>
+                                    <svg class="w-5 h-5 text-slate-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border-t border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
+                                        <ul class="space-y-2">
+                                            <li>• Нажмите кнопку переключения темы в правом верхнем углу</li>
+                                            <li>• Очистите localStorage браузера если тема не сохраняется</li>
+                                            <li>• Проверьте настройки браузера для темной темы</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Table of Contents -->
+                    <div class="help-card help-card-stagger help-stagger-5 rounded-2xl p-6 sticky top-24">
+                        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Содержание</h3>
+                        <nav class="space-y-2">
+                            <a href="#basics" class="toc-link block p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                Основы работы
+                            </a>
+                            <a href="#shortcuts" class="toc-link block p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                Горячие клавиши
+                            </a>
+                            <a href="#advanced" class="toc-link block p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                Продвинутые функции
+                            </a>
+                            <a href="#troubleshooting" class="toc-link block p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                Решение проблем
+                            </a>
+                        </nav>
+                    </div>
+
+                    <!-- Quick Tips -->
+                    <div class="help-card help-card-stagger help-stagger-6 rounded-2xl p-6 mt-6">
+                        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Полезные советы</h3>
+                        <div class="space-y-4">
+                            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
+                                <p class="text-sm text-blue-800 dark:text-blue-200">
+                                    <strong>Совет:</strong> Используйте клавиатуру для быстрого ввода чисел и операций
+                                </p>
+                            </div>
+                            <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border-l-4 border-amber-500">
+                                <p class="text-sm text-amber-800 dark:text-amber-200">
+                                    <strong>Помните:</strong> История вычислений сохраняется автоматически
+                                </p>
+                            </div>
+                            <div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border-l-4 border-emerald-500">
+                                <p class="text-sm text-emerald-800 dark:text-emerald-200">
+                                    <strong>Удобно:</strong> Переключайте темы для комфортной работы
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Calculator -->
+            <div class="text-center mt-12">
+                <a href="calculator_interface.html" class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    Вернуться к калькулятору
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-slate-600 dark:text-slate-400">
+                    © 2025 Advanced Calculator Pro. Все права защищены.
+                </p>
+                <p class="text-sm text-slate-500 dark:text-slate-500 mt-2">
+                    Обновлено: 1 октября 2025 г.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme management
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const body = document.body;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('calculatorTheme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcons(savedTheme);
+
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('calculatorTheme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchableContent = document.querySelectorAll('section, .accordion-content, h2, h3, p, li');
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                // Reset all content visibility
+                searchableContent.forEach(element => {
+                    element.style.display = '';
+                    // Remove highlights
+                    element.innerHTML = element.innerHTML.replace(/<mark class="search-highlight">(.*?)<\/mark>/gi, '$1');
+                });
+                return;
+            }
+
+            searchableContent.forEach(element => {
+                const text = element.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    element.style.display = '';
+                    // Highlight search term
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    element.innerHTML = element.innerHTML.replace(regex, '<mark class="search-highlight">$1</mark>');
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard shortcut for search
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        // Accordion functionality
+        const accordionTriggers = document.querySelectorAll('.accordion-trigger');
+        
+        accordionTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const content = trigger.nextElementSibling;
+                const icon = trigger.querySelector('.accordion-icon');
+                
+                // Toggle content
+                content.classList.toggle('expanded');
+                
+                // Rotate icon
+                if (content.classList.contains('expanded')) {
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Quick navigation
+        const quickNavButtons = document.querySelectorAll('.nav-quick-btn');
+        
+        quickNavButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const sectionId = button.getAttribute('data-section');
+                const section = document.getElementById(sectionId);
+                
+                if (section) {
+                    section.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Table of contents smooth scrolling
+        const tocLinks = document.querySelectorAll('.toc-link');
+        
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight active section in TOC
+        const sections = document.querySelectorAll('section[id]');
+        
+        function updateActiveTocLink() {
+            let activeSection = null;
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 100 && rect.bottom >= 100) {
+                    activeSection = section;
+                }
+            });
+            
+            // Remove active class from all TOC links
+            tocLinks.forEach(link => {
+                link.classList.remove('text-blue-600', 'dark:text-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20');
+                link.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+            
+            // Add active class to current section link
+            if (activeSection) {
+                const activeLink = document.querySelector(`.toc-link[href="#${activeSection.id}"]`);
+                if (activeLink) {
+                    activeLink.classList.remove('text-slate-600', 'dark:text-slate-400');
+                    activeLink.classList.add('text-blue-600', 'dark:text-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20');
+                }
+            }
+        }
+
+        // Update active TOC link on scroll
+        window.addEventListener('scroll', updateActiveTocLink);
+        
+        // Initial call
+        updateActiveTocLink();
+
+        // Tooltips for keyboard shortcuts
+        const kbdElements = document.querySelectorAll('kbd');
+        
+        kbdElements.forEach(kbd => {
+            kbd.addEventListener('mouseenter', (e) => {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'help-tooltip absolute z-50 px-2 py-1 text-xs rounded shadow-lg';
+                tooltip.textContent = 'Нажмите эту клавишу';
+                
+                document.body.appendChild(tooltip);
+                
+                const rect = e.target.getBoundingClientRect();
+                tooltip.style.left = rect.left + 'px';
+                tooltip.style.top = (rect.top - 30) + 'px';
+                
+                setTimeout(() => tooltip.classList.add('show'), 10);
+                
+                e.target.tooltipElement = tooltip;
+            });
+            
+            kbd.addEventListener('mouseleave', (e) => {
+                if (e.target.tooltipElement) {
+                    e.target.tooltipElement.remove();
+                    e.target.tooltipElement = null;
+                }
+            });
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

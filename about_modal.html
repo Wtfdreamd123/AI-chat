@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>О программе - Калькулятор</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+        /* Theme variables */
+        :root {
+            --calc-bg: #ffffff;
+            --calc-surface: #f8fafc;
+            --calc-border: #e2e8f0;
+            --calc-text: #0f172a;
+            --calc-text-secondary: #475569;
+            --calc-button-bg: #ffffff;
+            --calc-button-hover: #f1f5f9;
+            --calc-button-active: #e2e8f0;
+            --calc-display-bg: #f8fafc;
+            --calc-operator-bg: #2563eb;
+            --calc-operator-hover: #1d4ed8;
+            --calc-equals-bg: #f59e0b;
+            --calc-equals-hover: #d97706;
+            --calc-clear-bg: #ef4444;
+            --calc-clear-hover: #dc2626;
+        }
+
+        [data-theme="dark"] {
+            --calc-bg: #0f172a;
+            --calc-surface: #1e293b;
+            --calc-border: #334155;
+            --calc-text: #f8fafc;
+            --calc-text-secondary: #cbd5e1;
+            --calc-button-bg: #1e293b;
+            --calc-button-hover: #334155;
+            --calc-button-active: #475569;
+            --calc-display-bg: #0f172a;
+            --calc-operator-bg: #3b82f6;
+            --calc-operator-hover: #2563eb;
+            --calc-equals-bg: #fbbf24;
+            --calc-equals-hover: #f59e0b;
+            --calc-clear-bg: #f87171;
+            --calc-clear-hover: #ef4444;
+        }
+
+        /* Background animations */
+        .geometric-bg {
+            background: linear-gradient(135deg, var(--calc-bg) 0%, var(--calc-surface) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .geometric-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            animation: geometricFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes geometricFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        /* Modal animations */
+        .modal-entrance {
+            animation: modalSlideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+
+        @keyframes modalSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Content staggered entrance */
+        .content-stagger {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .content-stagger-1 { animation: contentEntrance 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards; }
+        .content-stagger-2 { animation: contentEntrance 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards; }
+
+        @keyframes contentEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Feature card animations */
+        .feature-card {
+            background: var(--calc-button-bg);
+            border: 2px solid var(--calc-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: var(--calc-operator-bg);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        /* Button styles */
+        .nav-button {
+            background: var(--calc-button-bg);
+            color: var(--calc-text-secondary);
+            border: 1px solid var(--calc-border);
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: var(--calc-button-hover);
+            color: var(--calc-text);
+            transform: translateY(-1px);
+        }
+
+        .primary-button {
+            background: var(--calc-operator-bg);
+            color: white;
+            border: 2px solid var(--calc-operator-bg);
+            transition: all 0.2s ease;
+        }
+
+        .primary-button:hover {
+            background: var(--calc-operator-hover);
+            border-color: var(--calc-operator-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--calc-button-bg);
+            border: 2px solid var(--calc-border);
+            color: var(--calc-text);
+        }
+
+        .theme-toggle:hover {
+            background: var(--calc-button-hover);
+            transform: scale(1.05);
+        }
+
+        /* Theme transition */
+        * {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* Logo animation */
+        .logo-pulse {
+            animation: logoPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Floating elements */
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(2) {
+            animation-delay: -2s;
+        }
+
+        .floating-element:nth-child(3) {
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(2deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        /* Scroll animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fadvancedc8392back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="h-full geometric-bg font-inter" data-theme="light">
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center logo-pulse">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-semibold text-slate-900 dark:text-white">Калькулятор</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Калькулятор
+                    </a>
+                    <a href="settings_panel.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Настройки
+                    </a>
+                    <a href="about_modal.html" class="primary-button px-4 py-2 rounded-lg text-sm font-medium">
+                        О программе
+                    </a>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="theme-toggle p-2 rounded-lg transition-all duration-200" aria-label="Переключить тему">
+                    <svg id="sunIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <svg id="moonIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden nav-button p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-700 py-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Калькулятор</a>
+                    <a href="settings_panel.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Настройки</a>
+                    <a href="about_modal.html" class="primary-button px-4 py-2 rounded-lg text-sm font-medium">О программе</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Floating Background Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="floating-element absolute top-20 left-10 w-20 h-20 bg-blue-500/10 rounded-full"></div>
+        <div class="floating-element absolute top-40 right-20 w-16 h-16 bg-amber-500/10 rounded-full"></div>
+        <div class="floating-element absolute bottom-32 left-1/4 w-12 h-12 bg-emerald-500/10 rounded-full"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="min-h-screen pt-20 pb-8">
+        <!-- Hero Section -->
+        <section class="py-16 px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="modal-entrance">
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-8 logo-pulse">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
+                        Калькулятор
+                    </h1>
+                    <p class="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto">
+                        Веб-приложение (калькулятор) — это веб-инструмент, который помогает выполнять математические операции.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Specifications -->
+        <section class="py-16 px-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
+            <div class="max-w-4xl mx-auto">
+                <div class="scroll-reveal text-center mb-12">
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+                        Технические характеристики
+                    </h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-300">
+                        Современные технологии для надёжной работы
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="scroll-reveal">
+                        <div class="feature-card p-6 rounded-2xl h-full">
+                            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                                Веб-технологии
+                            </h3>
+                            <ul class="space-y-3 text-slate-600 dark:text-slate-300">
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span>HTML5</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span>CSS3 с анимациями</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span>Tailwind CSS</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span>JavaScript ES6+</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="scroll-reveal">
+                        <div class="feature-card p-6 rounded-2xl h-full">
+                            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                                Совместимость браузеров
+                            </h3>
+                            <ul class="space-y-3 text-slate-600 dark:text-slate-300">
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span>Chrome 90+</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span>Firefox 88+</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span>Safari 14+</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span>Edge 90+</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="py-16 px-4">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="scroll-reveal">
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                        Готовы начать вычисления?
+                    </h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-300 mb-8">
+                        Простой и удобный калькулятор для ваших математических задач
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="calculator_interface.html" class="primary-button px-8 py-3 rounded-xl text-lg font-semibold">
+                            Открыть калькулятор
+                        </a>
+                        <a href="settings_panel.html" class="nav-button px-8 py-3 rounded-xl text-lg font-medium">
+                            Настройки
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 border-t border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <span class="text-lg font-semibold text-slate-900 dark:text-white">Калькулятор</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-300 mb-4">
+                Веб-приложение для математических вычислений
+            </p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                © 2025 Калькулятор. Все права защищены.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme management
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const body = document.body;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('calculatorTheme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcons(savedTheme);
+
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('calculatorTheme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all scroll reveal elements
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add loading animation to external links
+        document.querySelectorAll('a[href$=".html"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Add loading state
+                this.style.opacity = '0.7';
+                this.style.pointerEvents = 'none';
+                
+                // Reset after a short delay (in case navigation fails)
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                    this.style.pointerEvents = 'auto';
+                }, 2000);
+            });
+        });
+
+        // Parallax effect for floating elements
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.floating-element');
+            
+            parallaxElements.forEach((element, index) => {
+                const speed = 0.5 + (index * 0.1);
+                const yPos = -(scrolled * speed);
+                element.style.transform = `translateY(${yPos}px)`;
+            });
+        });
+
+        // Add entrance animations on page load
+        window.addEventListener('load', () => {
+            // Trigger entrance animations
+            document.querySelectorAll('.modal-entrance, .content-stagger').forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0) scale(1)';
+                }, index * 100);
+            });
+        });
+
+        // Performance optimization: Reduce animations on low-end devices
+        if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
+            document.documentElement.style.setProperty('--timing-fast', '100ms');
+            document.documentElement.style.setProperty('--timing-normal', '200ms');
+        }
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Калькулятор</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+        /* Theme variables */
+        :root {
+            --calc-bg: #ffffff;
+            --calc-surface: #f8fafc;
+            --calc-border: #e2e8f0;
+            --calc-text: #0f172a;
+            --calc-text-secondary: #475569;
+            --calc-button-bg: #ffffff;
+            --calc-button-hover: #f1f5f9;
+            --calc-button-active: #e2e8f0;
+            --calc-display-bg: #f8fafc;
+            --calc-operator-bg: #2563eb;
+            --calc-operator-hover: #1d4ed8;
+            --calc-equals-bg: #f59e0b;
+            --calc-equals-hover: #d97706;
+            --calc-clear-bg: #ef4444;
+            --calc-clear-hover: #dc2626;
+            --calc-size-scale: 1;
+        }
+
+        [data-theme="dark"] {
+            --calc-bg: #0f172a;
+            --calc-surface: #1e293b;
+            --calc-border: #334155;
+            --calc-text: #f8fafc;
+            --calc-text-secondary: #cbd5e1;
+            --calc-button-bg: #1e293b;
+            --calc-button-hover: #334155;
+            --calc-button-active: #475569;
+            --calc-display-bg: #0f172a;
+            --calc-operator-bg: #3b82f6;
+            --calc-operator-hover: #2563eb;
+            --calc-equals-bg: #fbbf24;
+            --calc-equals-hover: #f59e0b;
+            --calc-clear-bg: #f87171;
+            --calc-clear-hover: #ef4444;
+        }
+
+        /* Background animations */
+        .geometric-bg {
+            background: linear-gradient(135deg, var(--calc-bg) 0%, var(--calc-surface) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .geometric-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            animation: geometricFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes geometricFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        /* Calculator entrance animation */
+        .calculator-entrance {
+            animation: calculatorSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+
+        @keyframes calculatorSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Display animation */
+        .display-entrance {
+            animation: displaySlideDown 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        @keyframes displaySlideDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Button staggered entrance */
+        .button-stagger {
+            opacity: 0;
+            transform: translateY(15px) scale(0.9);
+        }
+
+        .button-stagger-1 { animation: buttonEntrance 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards; }
+        .button-stagger-2 { animation: buttonEntrance 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s forwards; }
+        .button-stagger-3 { animation: buttonEntrance 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.7s forwards; }
+        .button-stagger-4 { animation: buttonEntrance 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s forwards; }
+
+        @keyframes buttonEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(15px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Calculator size scaling */
+        .calculator-container {
+            transform: scale(var(--calc-size-scale));
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        /* Button interactions */
+        .calc-button {
+            background: var(--calc-button-bg);
+            color: var(--calc-text);
+            border: 2px solid var(--calc-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-button:hover {
+            background: var(--calc-button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .calc-button:active {
+            transform: translateY(0) scale(0.95);
+            background: var(--calc-button-active);
+        }
+
+        /* Ripple effect */
+        .calc-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .calc-button:active::after {
+            width: 100px;
+            height: 100px;
+        }
+
+        /* Operator buttons */
+        .operator-button {
+            background: var(--calc-operator-bg) !important;
+            color: white !important;
+            border-color: var(--calc-operator-bg) !important;
+        }
+
+        .operator-button:hover {
+            background: var(--calc-operator-hover) !important;
+            border-color: var(--calc-operator-hover) !important;
+        }
+
+        /* Equals button */
+        .equals-button {
+            background: var(--calc-equals-bg) !important;
+            color: white !important;
+            border-color: var(--calc-equals-bg) !important;
+        }
+
+        .equals-button:hover {
+            background: var(--calc-equals-hover) !important;
+            border-color: var(--calc-equals-hover) !important;
+        }
+
+        /* Clear button */
+        .clear-button {
+            background: var(--calc-clear-bg) !important;
+            color: white !important;
+            border-color: var(--calc-clear-bg) !important;
+        }
+
+        .clear-button:hover {
+            background: var(--calc-clear-hover) !important;
+            border-color: var(--calc-clear-hover) !important;
+        }
+
+        /* Display styling */
+        .calculator-display {
+            background: var(--calc-display-bg);
+            color: var(--calc-text);
+            border: 2px solid var(--calc-border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Theme transition */
+        * {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* Navigation styles */
+        .nav-button {
+            background: var(--calc-button-bg);
+            color: var(--calc-text-secondary);
+            border: 1px solid var(--calc-border);
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: var(--calc-button-hover);
+            color: var(--calc-text);
+            transform: translateY(-1px);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--calc-button-bg);
+            border: 2px solid var(--calc-border);
+            color: var(--calc-text);
+        }
+
+        .theme-toggle:hover {
+            background: var(--calc-button-hover);
+            transform: scale(1.05);
+        }
+    </style>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fadvancedc8392back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="h-full geometric-bg font-inter" data-theme="light">
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-semibold text-slate-900 dark:text-white">Калькулятор</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Калькулятор
+                    </a>
+                    <a href="settings_panel.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        Настройки
+                    </a>
+                    <a href="about_modal.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">
+                        О программе
+                    </a>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="theme-toggle p-2 rounded-lg transition-all duration-200" aria-label="Переключить тему">
+                    <svg id="sunIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <svg id="moonIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden nav-button p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-700 py-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="calculator_interface.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Калькулятор</a>
+                    <a href="settings_panel.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">Настройки</a>
+                    <a href="about_modal.html" class="nav-button px-4 py-2 rounded-lg text-sm font-medium">О программе</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Calculator Interface -->
+    <main class="min-h-screen flex items-center justify-center px-4 pt-20 pb-8">
+        <div class="w-full max-w-md">
+            <!-- Calculator Container -->
+            <div id="calculator" class="calculator-entrance calculator-container bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-slate-200 dark:border-slate-600 p-6">
+                <!-- Calculator Header -->
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Калькулятор</h1>
+                </div>
+
+                <!-- Display Screen -->
+                <div id="display" class="display-entrance calculator-display rounded-xl p-6 mb-6 text-right">
+                    <div id="previousOperation" class="text-sm text-slate-500 dark:text-slate-400 h-6 mb-2"></div>
+                    <div id="currentDisplay" class="text-3xl font-mono font-semibold text-slate-900 dark:text-white min-h-[2.5rem] flex items-center justify-end">0</div>
+                </div>
+
+                <!-- Button Grid -->
+                <div class="grid grid-cols-4 gap-3">
+                    <!-- Row 1 -->
+                    <button class="calc-button clear-button button-stagger button-stagger-1 h-14 rounded-xl text-lg font-semibold" data-action="clear">C</button>
+                    <button class="calc-button clear-button button-stagger button-stagger-1 h-14 rounded-xl text-lg font-semibold" data-action="clear-entry">CE</button>
+                    <button class="calc-button operator-button button-stagger button-stagger-1 h-14 rounded-xl text-lg font-semibold" data-action="backspace">⌫</button>
+                    <button class="calc-button operator-button button-stagger button-stagger-1 h-14 rounded-xl text-lg font-semibold" data-operation="/">÷</button>
+
+                    <!-- Row 2 -->
+                    <button class="calc-button button-stagger button-stagger-2 h-14 rounded-xl text-lg font-semibold" data-number="7">7</button>
+                    <button class="calc-button button-stagger button-stagger-2 h-14 rounded-xl text-lg font-semibold" data-number="8">8</button>
+                    <button class="calc-button button-stagger button-stagger-2 h-14 rounded-xl text-lg font-semibold" data-number="9">9</button>
+                    <button class="calc-button operator-button button-stagger button-stagger-2 h-14 rounded-xl text-lg font-semibold" data-operation="*">×</button>
+
+                    <!-- Row 3 -->
+                    <button class="calc-button button-stagger button-stagger-3 h-14 rounded-xl text-lg font-semibold" data-number="4">4</button>
+                    <button class="calc-button button-stagger button-stagger-3 h-14 rounded-xl text-lg font-semibold" data-number="5">5</button>
+                    <button class="calc-button button-stagger button-stagger-3 h-14 rounded-xl text-lg font-semibold" data-number="6">6</button>
+                    <button class="calc-button operator-button button-stagger button-stagger-3 h-14 rounded-xl text-lg font-semibold" data-operation="-">−</button>
+
+                    <!-- Row 4 -->
+                    <button class="calc-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold" data-number="1">1</button>
+                    <button class="calc-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold" data-number="2">2</button>
+                    <button class="calc-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold" data-number="3">3</button>
+                    <button class="calc-button operator-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold" data-operation="+">+</button>
+
+                    <!-- Row 5 -->
+                    <button class="calc-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold col-span-2" data-number="0">0</button>
+                    <button class="calc-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold" data-action="decimal">,</button>
+                    <button class="calc-button equals-button button-stagger button-stagger-4 h-14 rounded-xl text-lg font-semibold" data-action="equals">=</button>
+                </div>
+
+                <!-- Keyboard Shortcuts Info -->
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Используйте клавиатуру для быстрого ввода • <kbd class="px-1 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-xs">Esc</kbd> - очистить
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Calculator state
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let waitingForNewInput = false;
+
+        // Settings
+        let settings = {
+            theme: 'light',
+            calculatorSize: 100,
+            decimalPrecision: 4,
+            soundEffects: false,
+            keyboardShortcuts: true
+        };
+
+        // DOM elements
+        const currentDisplay = document.getElementById('currentDisplay');
+        const previousOperation = document.getElementById('previousOperation');
+        const calculator = document.getElementById('calculator');
+        const buttons = calculator.querySelectorAll('button[data-number], button[data-operation], button[data-action]');
+
+        // Theme management
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const body = document.body;
+
+        // Load settings and apply them
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('calculatorSettings');
+            if (savedSettings) {
+                settings = { ...settings, ...JSON.parse(savedSettings) };
+            }
+            
+            const savedTheme = localStorage.getItem('calculatorTheme') || settings.theme;
+            settings.theme = savedTheme;
+            
+            applySettings();
+        }
+
+        function applySettings() {
+            // Theme
+            body.setAttribute('data-theme', settings.theme);
+            updateThemeIcons(settings.theme);
+
+            // Calculator size
+            const scale = settings.calculatorSize / 100;
+            document.documentElement.style.setProperty('--calc-size-scale', scale);
+        }
+
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('calculatorTheme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Listen for settings changes from other pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'calculatorSettings' || e.key === 'calculatorTheme') {
+                loadSettings();
+            }
+        });
+
+        // Calculator functionality
+        function updateDisplay() {
+            currentDisplay.textContent = formatNumber(currentInput);
+            
+            if (operation && previousInput) {
+                const operatorSymbol = {
+                    '+': '+',
+                    '-': '−',
+                    '*': '×',
+                    '/': '÷'
+                }[operation] || operation;
+                previousOperation.textContent = `${formatNumber(previousInput)} ${operatorSymbol}`;
+            } else {
+                previousOperation.textContent = '';
+            }
+        }
+
+        function formatNumber(num) {
+            if (num === '' || num === '0') return '0';
+            
+            // Handle decimal numbers with precision setting
+            if (num.includes('.')) {
+                const [integer, decimal] = num.split('.');
+                const limitedDecimal = decimal.substring(0, settings.decimalPrecision);
+                return formatInteger(integer) + ',' + limitedDecimal;
+            }
+            
+            return formatInteger(num);
+        }
+
+        function formatInteger(num) {
+            return num.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        function playSound() {
+            if (settings.soundEffects) {
+                // Simple click sound using Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            }
+        }
+
+        function inputNumber(num) {
+            playSound();
+            if (waitingForNewInput) {
+                currentInput = num;
+                waitingForNewInput = false;
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+            updateDisplay();
+        }
+
+        function inputOperation(nextOperation) {
+            playSound();
+            const inputValue = parseFloat(currentInput.replace(/\s/g, '').replace(',', '.'));
+
+            if (previousInput === '') {
+                previousInput = currentInput;
+            } else if (operation) {
+                const result = calculate();
+                currentInput = String(result);
+                previousInput = currentInput;
+            }
+
+            waitingForNewInput = true;
+            operation = nextOperation;
+            updateDisplay();
+        }
+
+        function calculate() {
+            const prev = parseFloat(previousInput.replace(/\s/g, '').replace(',', '.'));
+            const current = parseFloat(currentInput.replace(/\s/g, '').replace(',', '.'));
+
+            if (isNaN(prev) || isNaN(current)) return current;
+
+            let result;
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = current !== 0 ? prev / current : 0;
+                    break;
+                default:
+                    result = current;
+            }
+
+            // Apply precision limit to result
+            if (result % 1 !== 0) {
+                result = parseFloat(result.toFixed(settings.decimalPrecision));
+            }
+
+            return result;
+        }
+
+        function performCalculation() {
+            if (operation && previousInput !== '' && !waitingForNewInput) {
+                playSound();
+                const result = calculate();
+                
+                currentInput = String(result);
+                previousInput = '';
+                operation = null;
+                waitingForNewInput = true;
+                updateDisplay();
+            }
+        }
+
+        function clearCalculator() {
+            playSound();
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            waitingForNewInput = false;
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            playSound();
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function backspace() {
+            playSound();
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function inputDecimal() {
+            playSound();
+            if (waitingForNewInput) {
+                currentInput = '0.';
+                waitingForNewInput = false;
+            } else if (currentInput.indexOf('.') === -1) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        // Event listeners
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const target = e.target;
+                
+                if (target.dataset.number) {
+                    inputNumber(target.dataset.number);
+                } else if (target.dataset.operation) {
+                    inputOperation(target.dataset.operation);
+                } else if (target.dataset.action) {
+                    switch (target.dataset.action) {
+                        case 'clear':
+                            clearCalculator();
+                            break;
+                        case 'clear-entry':
+                            clearEntry();
+                            break;
+                        case 'backspace':
+                            backspace();
+                            break;
+                        case 'decimal':
+                            inputDecimal();
+                            break;
+                        case 'equals':
+                            performCalculation();
+                            break;
+                    }
+                }
+            });
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (!settings.keyboardShortcuts) return;
+            
+            e.preventDefault();
+            
+            if (e.key >= '0' && e.key <= '9') {
+                inputNumber(e.key);
+            } else if (['+', '-', '*', '/'].includes(e.key)) {
+                inputOperation(e.key);
+            } else if (e.key === 'Enter' || e.key === '=') {
+                performCalculation();
+            } else if (e.key === 'Escape') {
+                clearCalculator();
+            } else if (e.key === 'Backspace') {
+                backspace();
+            } else if (e.key === '.' || e.key === ',') {
+                inputDecimal();
+            }
+        });
+
+        // Initialize
+        loadSettings();
+        updateDisplay();
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>
